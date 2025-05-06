@@ -8,9 +8,27 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import { Save, TrendingUp } from "lucide-react"
+import axios from 'axios';
 
 export default function VitalSigns() {
   const [selectedPatient, setSelectedPatient] = useState("")
+  const [form, setForm] = useState({
+    fecha:"",
+    hora: "",
+    temp: "",
+    peso: "",
+    estatura: "",
+    imc: "",
+    saturacion: "",
+    fcardiaca: "",
+    frespiratoria: "",
+    Oxigeno:"",
+    PresionSistolica:"",
+    PresionDiastolica:""
+  });
+
+  
+  
 
   // Datos de ejemplo para la gráfica
   const data = [
@@ -26,10 +44,10 @@ export default function VitalSigns() {
       <div className="flex flex-col md:flex-row gap-4 justify-between">
         <h2 className="text-2xl font-bold">Signos Vitales</h2>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
+          {/* <Button variant="outline" className="flex items-center gap-2">
             <TrendingUp size={16} />
             <span>Ver Tendencias</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -40,19 +58,6 @@ export default function VitalSigns() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="vs-patient">Paciente</Label>
-              <Select value={selectedPatient} onValueChange={setSelectedPatient}>
-                <SelectTrigger id="vs-patient">
-                  <SelectValue placeholder="Seleccionar paciente" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="p1">Paciente Ejemplo 1</SelectItem>
-                  <SelectItem value="p2">Paciente Ejemplo 2</SelectItem>
-                  <SelectItem value="p3">Paciente Ejemplo 3</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="vs-date">Fecha</Label>
               <Input id="vs-date" type="date" defaultValue={new Date().toISOString().split("T")[0]} />

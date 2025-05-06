@@ -30,13 +30,14 @@ export default function PatientList(){
     const buscarPaciente = async () => {
         try {
             const res = await axios.get(`http://localhost:3001/historiales/paciente/${nombre}`);
-            const id = res.data.pacienteId;
-        
-            setPacienteId(id);
+
+            setDatos({...datosPaciente, nombrePaciente:res.data.datosPaciente.nombrePaciente,
+                Fecha_nacimiento:res.data.datosPaciente.Fecha_nacimiento,
+                gender: res.data.datosPaciente.gender
+                })
+    
+            console.log(res.data.datosPaciente);
             setError("");
-            console.log(id); 
-        
-            ObtenerDatosPaciente(nombre);
         
         } catch (err) {
             if (err instanceof Error) {
@@ -45,22 +46,22 @@ export default function PatientList(){
           }
       };
 
-      const ObtenerDatosPaciente = async (nombre:string) => {
-        try {
-          const res = await axios.get(`http://localhost:3001/historiales/paciente/${nombre}`);
-        //   setDatos(res.data.resumen.datosPaciente); /paciente/:nombrePaciente
-          setDatos({...datosPaciente, nombrePaciente:res.data.resumen.datosPaciente.nombre,
-            Fecha_nacimiento:res.data.resumen.datosPaciente.fechaNacimiento,
-            gender: res.data.resumen.datosPaciente.sexo
-            })
+    //   const ObtenerDatosPaciente = async (nombre:string) => {
+    //     try {
+    //       const res = await axios.get(`http://localhost:3001/historiales/paciente/${nombre}`);
+    //     //   setDatos(res.data.resumen.datosPaciente); /paciente/:nombrePaciente
+    //       setDatos({...datosPaciente, nombrePaciente:res.data.resumen.datosPaciente.nombre,
+    //         Fecha_nacimiento:res.data.resumen.datosPaciente.fechaNacimiento,
+    //         gender: res.data.resumen.datosPaciente.sexo
+    //         })
 
-          console.log(res.data.resumen.datosPaciente);
-        } catch (err) {
-          if (err instanceof Error) {
-            console.error(err.message);
-          }
-        }
-      };
+    //       console.log(res.data.resumen.datosPaciente);
+    //     } catch (err) {
+    //       if (err instanceof Error) {
+    //         console.error(err.message);
+    //       }
+    //     }
+    //   };
 
     
 
