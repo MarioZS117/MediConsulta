@@ -23,6 +23,9 @@ export default function LoginPage() {
   const [direccionConsultorio, setDireccionConsultorio] = useState("");
   const [especialidad, setEspecialidad] = useState("");
   const [cedulaProfesional, setCedulaProfesional] = useState("");
+  const [doctor, setDoctor]=useState({
+    nombre:""
+  })
 
   const handleLogin = async () => {
     setLoading(true);
@@ -41,6 +44,14 @@ export default function LoginPage() {
         correoElectronico: email,
         contrasena: password,
       });
+
+      setDoctor({...doctor, nombre:response.data.medico.nombre})
+      console.log(response.data.medico.nombre)
+      console.log("espacio")
+      localStorage.setItem("nombreDoctor", response.data.medico.nombre)
+      localStorage.setItem("Especialidad", response.data.medico.especialidad)
+
+      window.alert(localStorage.getItem("nombreDoctor"))
 
       console.log("Login exitoso:", response.data);
       // Redirigir al dashboard o manejar el inicio de sesión exitoso

@@ -1,54 +1,101 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
-import { Save, TrendingUp } from "lucide-react"
-import axios from 'axios';
+import { Save } from "lucide-react"
+import axios from "axios"
 
 export default function VitalSigns() {
-  const [selectedPatient, setSelectedPatient] = useState("")
+  interface Patient {
+    _id: string
+    nombrePaciente: string
+  }
+
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [selectedPatient, setSelectedPatient] = useState<string>("")
   const [form, setForm] = useState({
-    fecha:"",
+    fecha: "",
     hora: "",
-    temp: "",
+    temperatura: "",
     peso: "",
-    estatura: "",
-    imc: "",
-    saturacion: "",
-    fcardiaca: "",
-    frespiratoria: "",
-    Oxigeno:"",
-    PresionSistolica:"",
-    PresionDiastolica:""
-  });
+    estatura_cm: "",
+    presion_arterial_sistolica: "",
+    presion_arterial_diastolica: "",
+    frecuencia_cardiaca_lpm: "",
+    frecuencia_respiratoria: "",
+    saturacion_de_oxigeno: "",
+    glucosa: "",
+    observaciones_adicionales: "",
+  })
 
-  
-  
+  // Llamar al microservicio para obtener los pacientes
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await axios.get("http://localhost:406/pacientes/")
+        setPatients(response.data) // Actualizar la lista de pacientes
+      } catch (error) {
+        console.error("Error al obtener los pacientes:", error)
+      }
+    }
 
-  // Datos de ejemplo para la gráfica
-  const data = [
-    { date: "01/03", weight: 70, temperature: 36.5, systolic: 120, diastolic: 80, pulse: 72 },
-    { date: "08/03", weight: 69.5, temperature: 36.7, systolic: 118, diastolic: 78, pulse: 70 },
-    { date: "15/03", weight: 69, temperature: 36.6, systolic: 122, diastolic: 82, pulse: 74 },
-    { date: "22/03", weight: 68.5, temperature: 36.4, systolic: 119, diastolic: 79, pulse: 71 },
-    { date: "29/03", weight: 68, temperature: 36.5, systolic: 117, diastolic: 77, pulse: 69 },
-  ]
+    fetchPatients()
+  }, [])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setForm({ ...form, [name]: value })
+  }
+
+  const guardarSignosVitales = async () => {
+    if (!selectedPatient) {
+      alert("Por favor, seleccione un paciente.")
+      return
+    }
+
+    const nombrePaciente = patients.find((patient) => patient._id === selectedPatient)?.nombrePaciente || ""
+
+    try {
+      const fechaHora = new Date(`${form.fecha}T${form.hora}`).toISOString()
+
+      const datos = {
+        ...form,
+        nombrePaciente,
+        fechaHora,
+      }
+
+      await axios.post("http://localhost:405/signos-vitales/registro", datos)
+
+      alert("¡Signos vitales guardados!")
+      setForm({
+        fecha: "",
+        hora: "",
+        temperatura: "",
+        peso: "",
+        estatura_cm: "",
+        presion_arterial_sistolica: "",
+        presion_arterial_diastolica: "",
+        frecuencia_cardiaca_lpm: "",
+        frecuencia_respiratoria: "",
+        saturacion_de_oxigeno: "",
+        glucosa: "",
+        observaciones_adicionales: "",
+      })
+      setSelectedPatient("")
+    } catch (err) {
+      console.error("Error al guardar signos vitales:", err)
+      alert("Hubo un error al guardar los signos vitales")
+    }
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-4 justify-between">
         <h2 className="text-2xl font-bold">Signos Vitales</h2>
-        <div className="flex gap-2">
-          {/* <Button variant="outline" className="flex items-center gap-2">
-            <TrendingUp size={16} />
-            <span>Ver Tendencias</span>
-          </Button> */}
-        </div>
       </div>
 
       <Card>
@@ -57,103 +104,99 @@ export default function VitalSigns() {
           <CardDescription>Registre los signos vitales del paciente</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="patient">Paciente</Label>
+            <Select value={selectedPatient} onValueChange={setSelectedPatient}>
+              <SelectTrigger id="patient">
+                <SelectValue placeholder="Seleccionar paciente" />
+              </SelectTrigger>
+              <SelectContent>
+                {patients.map((patient) => (
+                  <SelectItem key={patient._id} value={patient._id}>
+                    {patient.nombrePaciente}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="vs-date">Fecha</Label>
-              <Input id="vs-date" type="date" defaultValue={new Date().toISOString().split("T")[0]} />
+              <Input
+                id="vs-date"
+                type="date"
+                name="fecha"
+                value={form.fecha}
+                onChange={handleChange}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vs-time">Hora</Label>
-              <Input id="vs-time" type="time" defaultValue={new Date().toTimeString().slice(0, 5)} />
+              <Input
+                id="vs-time"
+                type="time"
+                name="hora"
+                value={form.hora}
+                onChange={handleChange}
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="vs-temperature">Temperatura (°C)</Label>
-              <Input id="vs-temperature" type="number" step="0.1" placeholder="36.5" />
+              <Input name="temperatura" id="vs-temperature" type="number" step="0.1" placeholder="36.5" value={form.temperatura} onChange={handleChange} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vs-weight">Peso (kg)</Label>
-              <Input id="vs-weight" type="number" step="0.1" placeholder="70.0" />
+              <Input name="peso" id="vs-weight" type="number" step="0.1" placeholder="70.0" value={form.peso} onChange={handleChange} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vs-height">Estatura (cm)</Label>
-              <Input id="vs-height" type="number" placeholder="170" />
+              <Input name="estatura_cm" id="vs-height" type="number" placeholder="170" value={form.estatura_cm} onChange={handleChange} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vs-systolic">Presión Arterial Sistólica (mmHg)</Label>
-              <Input id="vs-systolic" type="number" placeholder="120" />
+              <Input name="presion_arterial_sistolica" id="vs-systolic" type="number" placeholder="120" value={form.presion_arterial_sistolica} onChange={handleChange} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vs-diastolic">Presión Arterial Diastólica (mmHg)</Label>
-              <Input id="vs-diastolic" type="number" placeholder="80" />
+              <Input name="presion_arterial_diastolica" id="vs-diastolic" type="number" placeholder="80" value={form.presion_arterial_diastolica} onChange={handleChange} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vs-pulse">Frecuencia Cardíaca (lpm)</Label>
-              <Input id="vs-pulse" type="number" placeholder="72" />
+              <Input name="frecuencia_cardiaca_lpm" id="vs-pulse" type="number" placeholder="72" value={form.frecuencia_cardiaca_lpm} onChange={handleChange} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vs-respiratory">Frecuencia Respiratoria (rpm)</Label>
-              <Input id="vs-respiratory" type="number" placeholder="16" />
+              <Input name="frecuencia_respiratoria" id="vs-respiratory" type="number" placeholder="16" value={form.frecuencia_respiratoria} onChange={handleChange} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vs-oxygen">Saturación de Oxígeno (%)</Label>
-              <Input id="vs-oxygen" type="number" placeholder="98" />
+              <Input name="saturacion_de_oxigeno" id="vs-oxygen" type="number" placeholder="98" value={form.saturacion_de_oxigeno} onChange={handleChange} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="vs-glucose">Glucosa (mg/dL)</Label>
-              <Input id="vs-glucose" type="number" placeholder="90" />
+              <Input name="glucosa" id="vs-glucose" type="number" placeholder="90" value={form.glucosa} onChange={handleChange} />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="vs-notes">Observaciones</Label>
-            <Input id="vs-notes" placeholder="Observaciones adicionales" />
+            <Input name="observaciones_adicionales" id="vs-notes" placeholder="Observaciones adicionales" value={form.observaciones_adicionales} onChange={handleChange} />
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full md:w-auto flex items-center gap-2">
+          <Button
+            onClick={guardarSignosVitales}
+            className="w-full md:w-auto flex items-center gap-2"
+          >
             <Save size={16} />
             <span>Guardar Registro</span>
           </Button>
         </CardFooter>
       </Card>
-
-      {selectedPatient && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Historial de Signos Vitales</CardTitle>
-            <CardDescription>Tendencias de los últimos registros</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={data}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="systolic" stroke="#8884d8" name="Sistólica" />
-                  <Line type="monotone" dataKey="diastolic" stroke="#82ca9d" name="Diastólica" />
-                  <Line type="monotone" dataKey="pulse" stroke="#ff7300" name="Pulso" />
-                  <Line type="monotone" dataKey="temperature" stroke="#ff0000" name="Temperatura" />
-                  <Line type="monotone" dataKey="weight" stroke="#0088fe" name="Peso" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }

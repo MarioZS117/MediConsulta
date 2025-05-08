@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
+import axios from "axios"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -32,6 +33,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
   const isMobile = useMobile()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [medico, setMedico] = useState({ nombre: "Cargando...", especialidad: "Cargando..." })
+
+  const [nombreDoctor, setNombreDoctor] = useState("");
+  const [epecialidad, setEpecialidad] = useState("");
+
+  useEffect(() => {
+    const nombre = localStorage.getItem("nombreDoctor");
+    const esp = localStorage.getItem("Especialidad");
+    if (nombre) {
+      setNombreDoctor(nombre);
+    }
+    if(esp){
+      setEpecialidad(esp);
+    }
+  }, []);
+
+
 
   // Close sidebar when route changes on mobile
   useEffect(() => {
@@ -42,13 +60,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navigation = [
     { name: "Panel Principal", href: "/dashboard", icon: Home },
-    { name: "Expediente", href: "/expediente", icon: Users },
+    // { name: "Expediente", href: "/expediente", icon: Users },
     { name: "Nota Médica", href: "/nota-medica", icon: FileText },
-    { name: "Estudios", href: "/estudios", icon: ClipboardList },
-    { name: "Imagenología", href: "/imagenologia", icon: ClipboardList },
     { name: "Signos Vitales", href: "/signos-vitales", icon: Activity },
-    { name: "Diagnósticos", href: "/diagnosticos", icon: ClipboardList },
-    { name: "Agenda", href: "/agenda", icon: Calendar },
+    // { name: "Diagnósticos", href: "/diagnosticos", icon: ClipboardList },
+    // { name: "Agenda", href: "/agenda", icon: Calendar },
   ]
 
   return (
@@ -119,8 +135,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <User className="h-5 w-5 text-blue-600 dark:text-blue-300" />
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">Dr. Juan Pérez</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Médico General</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">{nombreDoctor}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{epecialidad}</p>
             </div>
           </div>
           <div className="flex items-center justify-between">
@@ -134,7 +150,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Button variant="outline" size="sm" className="flex items-center text-red-600 dark:text-red-400">
                 <LogOut className="h-4 w-4 mr-2" />
                 Salir
-              </Button>
+              </Button> 
             </Link>
           </div>
         </div>
@@ -164,7 +180,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center mr-2">
                   <User className="h-4 w-4 text-blue-600 dark:text-blue-300" />
                 </div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Dr. Juan Pérez</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{nombreDoctor}</span>
               </div>
             </div>
           </div>

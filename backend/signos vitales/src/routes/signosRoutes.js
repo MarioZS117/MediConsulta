@@ -5,6 +5,6 @@ import { addCompleteData,
  } from '../controllers/signosControllers.js';
 
 router.get('/paciente/:nombre', getPacienteIdByName);
-router.post('/add-complete-data', addCompleteData);
+router.post('/registro', addCompleteData);
 
 export default router;

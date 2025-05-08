@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Activity, Calendar, ClipboardList, Clock, Users, FileText, TrendingUp, Bell } from "lucide-react"
@@ -7,26 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { UserPlus, Search, UserCheck } from "lucide-react"
 import PatientRecord from "@/components/patient-record"
 import PatientList from "@/components/list-patient"
+import MedicalNote from "@/components/medical-note"
+import { useEffect, useState } from "react";
 
 export default function Dashboard() {
-  // Datos de ejemplo para el dashboard
-  // const upcomingAppointments = [
-  //   { id: 1, patient: "María García", time: "10:00 AM", type: "Consulta General" },
-  //   { id: 2, patient: "Carlos López", time: "11:30 AM", type: "Seguimiento" },
-  //   { id: 3, patient: "Ana Martínez", time: "2:15 PM", type: "Primera Consulta" },
-  // ]
+  const [nombreDoctor, setNombreDoctor] = useState("");
 
-  // const recentPatients = [
-  //   { id: 1, name: "Juan Pérez", age: 45, lastVisit: "Ayer", status: "Seguimiento" },
-  //   { id: 2, name: "Laura Sánchez", age: 32, lastVisit: "Hace 3 días", status: "Recuperado" },
-  //   { id: 3, name: "Roberto Díaz", age: 58, lastVisit: "Hace 1 semana", status: "En tratamiento" },
-  // ]
-
-  // const notifications = [
-  //   { id: 1, message: "Resultados de laboratorio disponibles para María García", time: "Hace 30 min" },
-  //   { id: 2, message: "Recordatorio: Actualizar historial de Carlos López", time: "Hace 2 horas" },
-  //   { id: 3, message: "Nueva cita programada para mañana a las 9:00 AM", time: "Hace 5 horas" },
-  // ]
+  useEffect(() => {
+    const nombre = localStorage.getItem("nombreDoctor");
+    if (nombre) {
+      setNombreDoctor(nombre);
+    }
+  }, []);
 
   return (
     <DashboardLayout>
@@ -34,7 +28,7 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-blue-700 dark:text-blue-400">Panel Principal</h1>
-            <p className="text-gray-600 dark:text-gray-300">Bienvenido, Dr. Juan Pérez</p>
+            <p className="text-gray-600 dark:text-gray-300">Bienvenido, {nombreDoctor} </p>
           </div>
        
         </div>

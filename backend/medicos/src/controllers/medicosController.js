@@ -15,6 +15,39 @@ const dbConfig = {
 export const testMicroservice = (req, res) => {
     res.status(200).json({ msg: 'El microservicio está funcionando correctamente' });
 };
+// Método para obtener el nombre y la especialidad del médico
+export const obtenerNombreYEspecialidad = async (req, res) => {
+    try {
+        // Obtener el ID del médico desde el token de autenticación
+        const medicoId = req.medicoId;
+
+        if (!medicoId) {
+            return res.status(401).json({ msg: 'No autorizado: ID del médico no encontrado en el token' });
+        }
+
+        // Conectar a la base de datos
+        const connection = await mysql.createConnection(dbConfig);
+
+        // Obtener el nombre y la especialidad del médico
+        const [rows] = await connection.query(
+            'SELECT Nombre, Especialidad FROM Medicos WHERE id = ?',
+            [medicoId]
+        );
+
+        if (rows.length === 0) {
+            await connection.end();
+            return res.status(404).json({ msg: 'El médico no existe' });
+        }
+
+        const { Nombre, Especialidad } = rows[0];
+        await connection.end();
+
+        res.json({ nombre: Nombre, especialidad: Especialidad });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error en el servidor' });
+    }
+};
 
 // Método para el login de médicos
 export const loginMedico = async (req, res) => {

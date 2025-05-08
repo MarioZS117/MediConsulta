@@ -1,5 +1,5 @@
 import express from 'express';
-import { loginMedico, registroMedico, testMicroservice} from '../controllers/medicosController.js';
+import { loginMedico, registroMedico, testMicroservice, obtenerNombreYEspecialidad} from '../controllers/medicosController.js';
 
 const router = express.Router();
 
@@ -11,6 +11,8 @@ router.get('/start', testMicroservice);
 
 // Ruta para crear un nuevo médico
 router.post('/registro', registroMedico);
+
+router.get('/datos-dashboard/:id', obtenerNombreYEspecialidad);
 
 // Ruta para actualizar un médico por ID
 // router.put('/:id', medicosController.updateMedico);

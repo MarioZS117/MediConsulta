@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv'; 
 import cors from 'cors'; // Mantén solo una importación
 import { medicosRoutes } from './routes/index.js';
+import initializeDatabase from '../../medicos/src/models/sqlConnection.js';
 
 const corsOptions = {
   origin: ['http://localhost:3000'],
@@ -12,6 +13,7 @@ dotenv.config(); // Cargar las variables de entorno desde .env
 
 const app = express();
 const port = process.env.PORT || 402; // Usar el puerto definido en .env o un valor por defecto
+initializeDatabase(); // Inicializar la base de datos
 
 app.use(cors(corsOptions));
 app.use(express.json());

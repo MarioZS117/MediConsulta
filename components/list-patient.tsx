@@ -35,8 +35,12 @@ export default function PatientList(){
                 Fecha_nacimiento:res.data.datosPaciente.Fecha_nacimiento,
                 gender: res.data.datosPaciente.gender
                 })
+
+            //sessionStorage.setItem("pacienteId", pacienteId);
+            localStorage.setItem("nombrePaciente", res.data.datosPaciente.nombrePaciente);
     
-            console.log(res.data.datosPaciente);
+            console.log(res.data.datosPaciente.nombrePaciente);
+            console.log(localStorage.getItem("nombrePaciente"));
             setError("");
         
         } catch (err) {
@@ -46,24 +50,6 @@ export default function PatientList(){
           }
       };
 
-    //   const ObtenerDatosPaciente = async (nombre:string) => {
-    //     try {
-    //       const res = await axios.get(`http://localhost:3001/historiales/paciente/${nombre}`);
-    //     //   setDatos(res.data.resumen.datosPaciente); /paciente/:nombrePaciente
-    //       setDatos({...datosPaciente, nombrePaciente:res.data.resumen.datosPaciente.nombre,
-    //         Fecha_nacimiento:res.data.resumen.datosPaciente.fechaNacimiento,
-    //         gender: res.data.resumen.datosPaciente.sexo
-    //         })
-
-    //       console.log(res.data.resumen.datosPaciente);
-    //     } catch (err) {
-    //       if (err instanceof Error) {
-    //         console.error(err.message);
-    //       }
-    //     }
-    //   };
-
-    
 
     return(
         <div className="bg-white dark:bg-gray-950 rounded-lg border border-gray-200 dark:border-gray-800 p-6">

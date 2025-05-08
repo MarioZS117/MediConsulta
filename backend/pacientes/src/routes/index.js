@@ -1,0 +1,1 @@
+export {default as pacientesRoutes} from './pacientesRoutes.js';

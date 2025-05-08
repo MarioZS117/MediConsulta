@@ -36,64 +36,46 @@ export const addCompleteData = async (req, res) => {
       recomendaciones 
     } = req.body;
 
-    // Validar que el nombre del paciente esté presente
-    if (!nombrePaciente) {
-      return res.status(400).json({ message: "El nombre del paciente es requerido" });
+    // Validar que todos los campos requeridos estén presentes
+    if (!nombrePaciente || !fechaLugar || !motivoConsulta || !examenFisico || !diagnostico || !tratamiento || !recomendaciones) {
+      return res.status(400).json({ message: "Todos los campos son obligatorios" });
     }
 
-    const database = await getConnection();
-
-    // Obtener el ID del paciente utilizando el nombre
-    const paciente = await database.collection('pacientes').findOne({ nombre: nombrePaciente });
-
-    if (!paciente) {
-      return res.status(404).json({ message: "Paciente no encontrado" });
-    }
-
-    // Recuperar datos de la historia clínica desde el microservicio de historiales
-    const historialUrl = `http://localhost:3001/historiales/resumen/${paciente._id}`;
-    let historiaClinica;
+    // Realizar una solicitud al microservicio de pacientes
+    const pacientesUrl = "http://localhost:406/pacientes/";
+    let pacientes;
 
     try {
-      const response = await axios.get(historialUrl);
-      historiaClinica = response.data;
+      const response = await axios.get(pacientesUrl);
+      pacientes = response.data;
     } catch (error) {
-      console.error("Error al recuperar la historia clínica", error);
-      return res.status(500).json({ message: "Error al recuperar la historia clínica", error: error.message });
+      console.error("Error al obtener los pacientes del microservicio:", error);
+      return res.status(500).json({ message: "Error al comunicarse con el microservicio de pacientes" });
     }
 
-    // Combinar todos los datos en un solo objeto
+    // Verificar si el nombre del paciente existe en la lista de pacientes
+    const pacienteExiste = pacientes.some((paciente) => paciente.nombrePaciente === nombrePaciente);
+
+    if (!pacienteExiste) {
+      return res.status(404).json({ message: "Paciente no encontrado en el microservicio de pacientes" });
+    }
+
+    // Crear el objeto de la nota médica
     const notaCompleta = {
-      pacienteId: paciente._id, // Agregar el ID del paciente
-      datosPaciente: {
-        nombre: nombrePaciente,
-        ...historiaClinica.datosPaciente // Datos adicionales del historial
-      },
-      fechaLugar: fechaLugar || {
-        fecha: new Date(),
-        lugar: null
-      },
+      nombrePaciente, // Usar el nombre del paciente como referencia
+      fechaLugar,
       motivoConsulta,
-      historiaClinica: historiaClinica || {
-        antecedentesPersonales: null,
-        antecedentesFamiliares: null,
-        otros: null
-      },
-      examenFisico: examenFisico || {
-        general: null,
-        cabeza: null,
-        cuello: null,
-        torax: null,
-        abdomen: null,
-        extremidades: null
-      },
-      diagnostico: diagnostico || null,
-      tratamiento: tratamiento || null,
-      recomendaciones: recomendaciones || null,
-      fechaCreacion: new Date() // Agregar una marca de tiempo
+      examenFisico,
+      diagnostico,
+      tratamiento,
+      recomendaciones,
+      fechaCreacion: new Date() // Marca de tiempo
     };
 
-    // Insertar el documento completo en la colección 'notas-medicas'
+    // Conectar a la base de datos
+    const database = await getConnection();
+
+    // Insertar el documento en la colección 'notas-medicas'
     const result = await database.collection('notas-medicas').insertOne(notaCompleta);
 
     res.status(201).json({ message: "Nota médica agregada correctamente", notaId: result.insertedId });

@@ -70,7 +70,7 @@ export const addCompleteData = async (req, res) => {
     }
 
     // Obtener el ID del paciente desde el microservicio de historiales
-    const historialUrl = `http://localhost:3001/historiales/paciente/${nombrePaciente}`;
+    const historialUrl = `http://localhost:3001/historiales/paciente/${encodeURIComponent(nombrePaciente)}`;
     const response = await axios.get(historialUrl);
 
     // Verificar si el paciente fue encontrado
@@ -90,7 +90,7 @@ export const addCompleteData = async (req, res) => {
     const [result] = await connection.query(
       `INSERT INTO signos_vitales 
       (paciente_id, fecha, hora, temperatura, peso, estatura_cm, presion_arterial_sistolica, presion_arterial_diastolica, frecuencia_cardiaca_lpm, frecuencia_respiratoria, saturacion_de_oxigeno, glucosa, observaciones_adicionales) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         pacienteId,
         fecha,
